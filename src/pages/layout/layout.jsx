@@ -18,7 +18,7 @@ export const metadata = {
   title: "PDF Chat - AI-Powered Document Analysis",
   description:
     "Chat with your PDF documents using AI. Upload, analyze, and get insights from your documents.",
-  generator: "v0.app",
+  
 };
 
 export default function RootLayout({ children }, children) {

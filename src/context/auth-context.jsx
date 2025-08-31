@@ -1,136 +1,100 @@
-import React, { createContext, useContext, useEffect, useState } from "react"
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { 
+  loginApi, 
+  registerApi, 
+  logoutApi, 
+  getCurrentUserApi,
+  getAccessToken
+} from "../api/auth";
 
-// Create context correctly
-const AuthContext = createContext(null)
+const AuthContext = createContext(null);
 
 export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  return context;
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [token, setToken] = useState(() => getAccessToken());
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // Check for existing session on mount
+  // ✅ Sync with /me on load
   useEffect(() => {
-    checkAuthStatus()
-  }, [])
-
-  const checkAuthStatus = async () => {
-    try {
-      const response = await fetch("/api/auth/me", {
-        credentials: "include",
-      })
-
-      if (response.ok) {
-        const userData = await response.json()
-        setUser(userData.user)
+    const checkAuth = async () => {
+      if (!token) {
+        setUser(null);
+        setIsInitialLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error("[Auth] Auth check failed:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+      try {
+        const data = await getCurrentUserApi(); // Already attaches token
+        setUser(data);
+        localStorage.setItem("user", JSON.stringify(data));
+      } catch (err) {
+        console.error("Auth check failed:", err.message);
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      } finally {
+        setIsInitialLoading(false);
+      }
+    };
+    checkAuth();
+  }, [token]);
 
-  const login = async (email, password) => {
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
-    })
+  const loginMutation = useMutation({
+    mutationFn: loginApi,
+    onSuccess: (data) => {
+      // backend returns: { status_code, message, email, token }
+      const normalizedUser = {
+        username: data?.email?.split("@")[0],
+        email: data.email,
+      };
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Login failed")
-    }
+      setUser(normalizedUser);
+      setToken(data.token.access_token); // ✅ Only access_token
 
-    const data = await response.json()
-    setUser(data.user)
-  }
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
+      localStorage.setItem("token", data.token.access_token);
+    },
+  });
 
-  const register = async (name, email, password) => {
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ name, email, password }),
-    })
+  const registerMutation = useMutation({
+    mutationFn: registerApi,
+    onSuccess: (data) => {
+      setUser({ email: data.email, username: data.email.split("@")[0] });
+    },
+  });
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Registration failed")
-    }
-
-    const data = await response.json()
-    setUser(data.user)
-  }
-
-  const logout = async () => {
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      })
-    } catch (error) {
-      console.error("[Auth] Logout error:", error)
-    } finally {
-      setUser(null)
-    }
-  }
-
-  const sendResetEmail = async (email) => {
-    const response = await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to send reset email")
-    }
-  }
-
-  const resetPassword = async (token, password) => {
-    const response = await fetch("/api/auth/reset-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ token, password }),
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to reset password")
-    }
-  }
+  const logoutMutation = useMutation({
+    mutationFn: logoutApi,
+    onSuccess: () => {
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+    },
+  });
 
   const value = {
     user,
-    isLoading,
-    login,
-    register,
-    logout,
-    sendResetEmail,
-    resetPassword,
-  }
+    token,
+    login: loginMutation.mutateAsync,
+    register: registerMutation.mutateAsync,
+    logout: logoutMutation.mutateAsync,
+    loginLoading: loginMutation.isPending,
+    registerLoading: registerMutation.isPending,
+    logoutLoading: logoutMutation.isPending,
+    isLoading: loginMutation.isPending || registerMutation.isPending || isInitialLoading,
+    isInitialLoading,
+  };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -1,11 +1,11 @@
-import { useState } from "react"
-import { useAuth } from "../context/auth-context"
-import { FileText, MessageCircle, Shield } from "lucide-react"
-import { Link } from "react-router-dom"
+import { useState } from "react";
+import { useAuth } from "../context/auth-context";
+import { FileText, MessageCircle, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Landing() {
-  const { user, logout } = useAuth()
-  const [showUserMenu, setShowUserMenu] = useState(false)
+  const { user, logout } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   return (
     <div className="min-h-screen bg-white">
@@ -26,15 +26,22 @@ export default function Landing() {
                     className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
                   >
                     <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                      {user.name.charAt(0).toUpperCase()}
+                      {user?.username
+                        ? user.username.charAt(0).toUpperCase()
+                        : "U"}
                     </div>
-                    <span className="hidden sm:block">{user.name}</span>
+                    <span className="hidden sm:block">
+                      {user?.username || user?.email || "User"}
+                    </span>
                   </button>
 
                   {showUserMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
                       <div className="py-1">
-                        <a href="/upload" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <a
+                          href="/upload"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
                           Upload PDF
                         </a>
                         <button
@@ -63,10 +70,12 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">Chat with Your PDF Documents</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+            Chat with Your PDF Documents
+          </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Upload any PDF document and start an intelligent conversation. Ask questions, get summaries, and extract
-            insights instantly.
+            Upload any PDF document and start an intelligent conversation. Ask
+            questions, get summaries, and extract insights instantly.
           </p>
           {user ? (
             <a
@@ -91,8 +100,12 @@ export default function Landing() {
       <section className="py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Services</h2>
-            <p className="text-lg text-gray-600">Everything you need to interact with your documents</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Our Services
+            </h2>
+            <p className="text-lg text-gray-600">
+              Everything you need to interact with your documents
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -100,17 +113,25 @@ export default function Landing() {
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FileText className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">PDF Upload</h3>
-              <p className="text-gray-600">Easily upload and process any PDF document with our secure platform.</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                PDF Upload
+              </h3>
+              <p className="text-gray-600">
+                Easily upload and process any PDF document with our secure
+                platform.
+              </p>
             </div>
 
             <div className="text-center p-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <MessageCircle className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Smart Chat</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Smart Chat
+              </h3>
               <p className="text-gray-600">
-                Ask questions about your document and get intelligent, contextual answers.
+                Ask questions about your document and get intelligent,
+                contextual answers.
               </p>
             </div>
 
@@ -118,8 +139,13 @@ export default function Landing() {
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-8 w-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Secure & Private</h3>
-              <p className="text-gray-600">Your documents are processed securely with complete privacy protection.</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Secure & Private
+              </h3>
+              <p className="text-gray-600">
+                Your documents are processed securely with complete privacy
+                protection.
+              </p>
             </div>
           </div>
         </div>
@@ -134,7 +160,9 @@ export default function Landing() {
                 <FileText className="h-6 w-6" />
                 <span className="text-lg font-bold">PDF Chat</span>
               </div>
-              <p className="text-gray-400">The easiest way to chat with your PDF documents using AI.</p>
+              <p className="text-gray-400">
+                The easiest way to chat with your PDF documents using AI.
+              </p>
             </div>
 
             <div>
@@ -207,5 +235,5 @@ export default function Landing() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
