@@ -1,7 +1,7 @@
 // api/auth.js
 
 // Base API URL
-export const API_URL = "http://127.0.0.1:8000/auth";
+export const API_URL = "https://rag-chatbot-backend-qvtb.onrender.com/auth";
 
 // ------------------- TOKEN HELPERS ------------------- //
 export const saveTokens = ({ access_token, refresh_token }) => {
