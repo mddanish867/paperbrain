@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const SUMMARY_API_URL = `${BASE_URL}/summary`;
 
 import { getAccessToken } from "./auth";

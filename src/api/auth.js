@@ -1,7 +1,7 @@
 // api/auth.js
 
 // Base API URL
-const BASE_URL = import.meta.env.API_BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const API_URL = `${BASE_URL}/auth`;
 
 // ------------------- TOKEN HELPERS ------------------- //
