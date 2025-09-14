@@ -17,7 +17,7 @@ export default function Header({ uploadedFile, onRemoveFile, onShowLibrary }) {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-2">
             <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
-            <h1 className="text-lg sm:text-xl font-bold text-foreground">PDF Chat</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-foreground">PaperBrain</h1>
           </div>
 
           <div className="flex items-center space-x-2 sm:space-x-4">

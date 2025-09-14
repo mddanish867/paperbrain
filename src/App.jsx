@@ -5,6 +5,7 @@ import Landing from "./pages/landing";
 import Login from "./pages/auth/login";
 import UploadPage from "./pages/pdf/upload";
 import ChatPage from "./pages/chat/chat";
+import Summary from "./pages/summary/summary";
 
 function App() {
   return (
@@ -25,6 +26,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ChatPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/summary"
+          element={
+            <ProtectedRoute>
+              <Summary />
             </ProtectedRoute>
           }
         />

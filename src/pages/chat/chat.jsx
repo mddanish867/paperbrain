@@ -138,7 +138,7 @@ export default function ChatPage() {
         >
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Chats</h2>
+              <h2 className="text-lg font-semibold text-gray-900">PaperBrain</h2>
               <button
                 onClick={createNewChat}
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"

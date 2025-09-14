@@ -1,7 +1,8 @@
 // api/auth.js
 
 // Base API URL
-export const API_URL = "https://rag-chatbot-backend-qvtb.onrender.com/auth";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const API_URL = `${BASE_URL}/auth`;
 
 // ------------------- TOKEN HELPERS ------------------- //
 export const saveTokens = ({ access_token, refresh_token }) => {
