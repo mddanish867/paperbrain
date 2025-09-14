@@ -1,13 +1,9 @@
-
-import { useState, useEffect } from "react"
-import ProtectedRoute from "../auth/protected-route"
-import { FileText, MessageCircle, Plus, Menu, X, Send } from "lucide-react"
-
-
-
+import { useState, useEffect } from "react";
+import ProtectedRoute from "../auth/protected-route";
+import { FileText, MessageCircle, Plus, Menu, X, Send } from "lucide-react";
 
 export default function ChatPage() {
-  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true)
+  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
   const [chatSessions, setChatSessions] = useState([
     {
       id: "1",
@@ -23,35 +19,35 @@ export default function ChatPage() {
       lastMessage: "Explain clause 5.2",
       timestamp: "1 day ago",
     },
-  ])
-  const [selectedChat, setSelectedChat] = useState(null)
-  const [messages, setMessages] = useState([])
-  const [newMessage, setNewMessage] = useState("")
-  const [currentPdfUrl, setCurrentPdfUrl] = useState(null)
-  const [currentPdfName, setCurrentPdfName] = useState("")
+  ]);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [currentPdfUrl, setCurrentPdfUrl] = useState(null);
+  const [currentPdfName, setCurrentPdfName] = useState("");
 
   // Load uploaded file from sessionStorage
   useEffect(() => {
-    const fileData = sessionStorage.getItem("uploadedFile")
-    const pdfUrl = sessionStorage.getItem("pdfUrl")
+    const fileData = sessionStorage.getItem("uploadedFile");
+    const pdfUrl = sessionStorage.getItem("pdfUrl");
 
     if (fileData && pdfUrl) {
-      const file = JSON.parse(fileData)
-      setCurrentPdfName(file.name)
-      setCurrentPdfUrl(pdfUrl)
+      const file = JSON.parse(fileData);
+      setCurrentPdfName(file.name);
+      setCurrentPdfUrl(pdfUrl);
 
       // Create a new chat session for the uploaded file
-      const newChatId = Date.now().toString()
+      const newChatId = Date.now().toString();
       const newChat = {
         id: newChatId,
         name: `Chat with ${file.name}`,
         pdfName: file.name,
         lastMessage: "New conversation",
         timestamp: "Just now",
-      }
+      };
 
-      setChatSessions((prev) => [newChat, ...prev])
-      setSelectedChat(newChatId)
+      setChatSessions((prev) => [newChat, ...prev]);
+      setSelectedChat(newChatId);
       setMessages([
         {
           id: "1",
@@ -59,16 +55,15 @@ export default function ChatPage() {
           isUser: false,
           timestamp: new Date().toLocaleTimeString(),
         },
-      ])
+      ]);
     }
-  }, [])
+  }, []);
 
   const handleChatSelect = (chatId) => {
-    setSelectedChat(chatId)
-    const chat = chatSessions.find((c) => c.id === chatId)
+    setSelectedChat(chatId);
+    const chat = chatSessions.find((c) => c.id === chatId);
     if (chat) {
-      setCurrentPdfName(chat.pdfName)
-      // In a real app, you would load the actual PDF and messages for this chat
+      setCurrentPdfName(chat.pdfName);
       setMessages([
         {
           id: "1",
@@ -76,22 +71,22 @@ export default function ChatPage() {
           isUser: false,
           timestamp: new Date().toLocaleTimeString(),
         },
-      ])
+      ]);
     }
-  }
+  };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim()) return
+    if (!newMessage.trim()) return;
 
     const userMessage = {
       id: Date.now().toString(),
       text: newMessage,
       isUser: true,
       timestamp: new Date().toLocaleTimeString(),
-    }
+    };
 
-    setMessages((prev) => [...prev, userMessage])
-    setNewMessage("")
+    setMessages((prev) => [...prev, userMessage]);
+    setNewMessage("");
 
     // Simulate AI response
     setTimeout(() => {
@@ -100,23 +95,23 @@ export default function ChatPage() {
         text: `I understand you're asking about "${newMessage}". Based on the PDF content, here's what I found...`,
         isUser: false,
         timestamp: new Date().toLocaleTimeString(),
-      }
-      setMessages((prev) => [...prev, aiResponse])
-    }, 1000)
-  }
+      };
+      setMessages((prev) => [...prev, aiResponse]);
+    }, 1000);
+  };
 
   const createNewChat = () => {
-    const newChatId = Date.now().toString()
+    const newChatId = Date.now().toString();
     const newChat = {
       id: newChatId,
       name: `New Chat ${chatSessions.length + 1}`,
       pdfName: currentPdfName,
       lastMessage: "New conversation",
       timestamp: "Just now",
-    }
+    };
 
-    setChatSessions((prev) => [newChat, ...prev])
-    setSelectedChat(newChatId)
+    setChatSessions((prev) => [newChat, ...prev]);
+    setSelectedChat(newChatId);
     setMessages([
       {
         id: "1",
@@ -124,52 +119,96 @@ export default function ChatPage() {
         isUser: false,
         timestamp: new Date().toLocaleTimeString(),
       },
-    ])
-  }
+    ]);
+  };
 
   return (
     <ProtectedRoute>
       <div className="h-screen bg-gray-50 flex">
-        {/* Left Panel - Chat History */}
+        {/* Sidebar */}
         <div
-          className={`${
-            isLeftPanelOpen ? "w-80" : "w-0"
-          } transition-all duration-300 bg-white border-r border-gray-200 flex flex-col overflow-hidden`}
+          className={`
+            fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform
+            transition-transform duration-300 ease-in-out
+            ${isLeftPanelOpen ? "translate-x-0" : "-translate-x-full"}
+            md:relative md:translate-x-0 md:w-80
+          `}
         >
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">PaperBrain</h2>
-              <button
-                onClick={createNewChat}
-                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
-              >
-                <Plus className="h-5 w-5" />
-              </button>
-            </div>
+          {/* Mobile Close Button */}
+          <div className="p-4 border-b border-gray-200 flex items-center justify-between md:hidden">
+            <a href="/" className="text-gray-600 hover:text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900">
+                PaperBrain
+              </h2>{" "}
+            </a>
+
+            <button
+              onClick={() => setIsLeftPanelOpen(false)}
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
+          {/* Desktop Header */}
+          <div className="hidden md:flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center space-x-2">
+              <FileText className="h-6 w-6 text-blue-600" />
+              <a href="/" className="text-gray-600 hover:text-gray-900">
+              <h2 className="text-lg font-semibold text-gray-900">
+                PaperBrain
+              </h2>{" "}
+            </a>
+            </div>
+            <button
+              onClick={createNewChat}
+              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Chat list */}
           <div className="flex-1 overflow-y-auto">
             {chatSessions.map((chat) => (
               <div
                 key={chat.id}
                 onClick={() => handleChatSelect(chat.id)}
                 className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
-                  selectedChat === chat.id ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
+                  selectedChat === chat.id
+                    ? "bg-blue-50 border-l-4 border-l-blue-500"
+                    : ""
                 }`}
               >
                 <div className="flex items-start space-x-3">
                   <FileText className="h-5 w-5 text-gray-400 mt-1" />
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-gray-900 truncate">{chat.name}</h3>
-                    <p className="text-xs text-gray-500 truncate">{chat.pdfName}</p>
-                    <p className="text-xs text-gray-400 mt-1">{chat.lastMessage}</p>
-                    <p className="text-xs text-gray-400 mt-1">{chat.timestamp}</p>
+                    <h3 className="text-sm font-medium text-gray-900 truncate">
+                      {chat.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 truncate">
+                      {chat.pdfName}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {chat.lastMessage}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {chat.timestamp}
+                    </p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Backdrop for Mobile */}
+        {isLeftPanelOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
+            onClick={() => setIsLeftPanelOpen(false)}
+          />
+        )}
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
@@ -180,26 +219,26 @@ export default function ChatPage() {
                 onClick={() => setIsLeftPanelOpen(!isLeftPanelOpen)}
                 className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
               >
-                {isLeftPanelOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isLeftPanelOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </button>
-              <div className="flex items-center space-x-2">
-                <FileText className="h-6 w-6 text-blue-600" />
-                <span className="text-lg font-semibold text-gray-900">PDF Chat</span>
-              </div>
-              <div className="flex-1" />
-              <a href="/" className="text-gray-600 hover:text-gray-900">
-                Home
-              </a>
             </div>
           </div>
 
-          {/* Content Area - PDF and Chat */}
-          <div className="flex-1 flex">
-            {/* PDF Viewer - Middle */}
+          {/* Content Area */}
+          <div className="flex-1 flex flex-col md:flex-row">
+            {/* PDF Viewer */}
             <div className="flex-1 bg-gray-100 p-4">
               <div className="h-full bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center">
                 {currentPdfUrl ? (
-                  <iframe src={currentPdfUrl} className="w-full h-full rounded-lg" title="PDF Viewer" />
+                  <iframe
+                    src={currentPdfUrl}
+                    className="w-full h-full rounded-lg"
+                    title="PDF Viewer"
+                  />
                 ) : (
                   <div className="text-center text-gray-500">
                     <FileText className="h-16 w-16 mx-auto mb-4 text-gray-300" />
@@ -209,27 +248,40 @@ export default function ChatPage() {
               </div>
             </div>
 
-            {/* Chat Window - Right */}
-            <div className="w-96 bg-white border-l border-gray-200 flex flex-col">
+            {/* Chat Window */}
+            <div className="w-full md:w-96 bg-white border-t md:border-t-0 md:border-l border-gray-200 flex flex-col">
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center space-x-2">
                   <MessageCircle className="h-5 w-5 text-blue-600" />
                   <h3 className="font-medium text-gray-900">Chat</h3>
                 </div>
-                {currentPdfName && <p className="text-sm text-gray-500 mt-1">{currentPdfName}</p>}
+                {currentPdfName && (
+                  <p className="text-sm text-gray-500 mt-1">{currentPdfName}</p>
+                )}
               </div>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((message) => (
-                  <div key={message.id} className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
+                  <div
+                    key={message.id}
+                    className={`flex ${
+                      message.isUser ? "justify-end" : "justify-start"
+                    }`}
+                  >
                     <div
                       className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.isUser ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-900 border border-gray-200"
+                        message.isUser
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-900 border border-gray-200"
                       }`}
                     >
                       <p className="text-sm">{message.text}</p>
-                      <p className={`text-xs mt-1 ${message.isUser ? "text-blue-100" : "text-gray-500"}`}>
+                      <p
+                        className={`text-xs mt-1 ${
+                          message.isUser ? "text-blue-100" : "text-gray-500"
+                        }`}
+                      >
                         {message.timestamp}
                       </p>
                     </div>
@@ -261,5 +313,5 @@ export default function ChatPage() {
         </div>
       </div>
     </ProtectedRoute>
-  )
+  );
 }
