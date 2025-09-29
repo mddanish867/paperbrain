@@ -6,7 +6,7 @@ import Login from "./pages/auth/login";
 import UploadPage from "./pages/pdf/upload";
 import ChatPage from "./pages/chat/chat";
 import Summary from "./pages/summary/summary";
-
+import  ResearchReportGenerator from "./pages/research/research";
 function App() {
   return (
     <Router>
@@ -34,6 +34,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Summary />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/research"
+          element={
+            <ProtectedRoute>
+              <ResearchReportGenerator />
             </ProtectedRoute>
           }
         />

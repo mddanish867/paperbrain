@@ -61,7 +61,15 @@ export default function Landing() {
                 >
                   Login
                 </Link>
-              )}
+              )}              
+            </div>
+            <div>
+              <Link
+                  to="/research"
+                  className="text-black px-4 py-2 lg transition-colors"
+                >
+                  Research
+                </Link>
             </div>
           </div>
         </div>
@@ -230,7 +238,7 @@ export default function Landing() {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 PDF Chat. All rights reserved.</p>
+            <p>&copy; 2025 PDF PaperBrain. All rights reserved.</p>
           </div>
         </div>
       </footer>
