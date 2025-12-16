@@ -7,12 +7,20 @@ import UploadPage from "./pages/pdf/upload";
 import ChatPage from "./pages/chat/chat";
 import Summary from "./pages/summary/summary";
 import  ResearchReportGenerator from "./pages/research/research";
+import LoginPage from "./pages/auth/LoginPage";
+import Register from "./pages/auth/register";
+import ForgotPassword from "./pages/auth/forgot-password";
+import ResetPassword from "./pages/auth/reset-ppassword";
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login2" element={<Login />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           path="/upload"
           element={
