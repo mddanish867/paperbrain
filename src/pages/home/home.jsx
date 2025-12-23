@@ -77,7 +77,7 @@ const Home = () => {
             ) : (
               <Link
                 to="/login"
-                className="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700"
+                className="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 rounded-lg"
               >
                 Login
               </Link>
