@@ -26,8 +26,14 @@ const Home = () => {
             <Link to="/" className="text-black hover:text-blue-600">
               Home
             </Link>
+            <Link to="/chat" className="text-black hover:text-blue-600">
+              Chat
+            </Link>
             <Link to="/research" className="text-black hover:text-blue-600">
               Research
+            </Link>
+            <Link to="/about" className="text-black hover:text-blue-600">
+              About
             </Link>
           </nav>
 
@@ -97,11 +103,25 @@ const Home = () => {
                 Home
               </Link>
               <Link
+                to="/chat"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-black hover:text-blue-600"
+              >
+                Chat
+              </Link>
+              <Link
                 to="/research"
                 onClick={() => setMobileMenuOpen(false)}
                 className="text-black hover:text-blue-600"
               >
                 Research
+              </Link>
+              <Link
+                to="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-black hover:text-blue-600"
+              >
+                About
               </Link>
             </nav>
           </div>

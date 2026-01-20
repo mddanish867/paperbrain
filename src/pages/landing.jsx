@@ -6,13 +6,11 @@ import Footer from "./home/footer";
 export default function Landing() {
   return (
     <div className="bg-white">
-      
-        {/* Header */}
-        <Home />
+      {/* Header */}
+      <Home />
 
-        {/* Hero Section */}
-        <Hero />
-      
+      {/* Hero Section */}
+      <Hero />
 
       {/* Services Section */}
       <Services />

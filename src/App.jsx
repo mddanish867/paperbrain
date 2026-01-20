@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./pages/auth/protected-route";
 import Landing from "./pages/landing";
 import Login from "./pages/auth/login";
-import UploadPage from "./pages/pdf/upload";
+import UploadPage from "./pages/upload/upload";
 import ChatPage from "./pages/chat/chat";
 import Summary from "./pages/summary/summary";
 import  ResearchReportGenerator from "./pages/research/research";
@@ -20,7 +20,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />    
+
         <Route
           path="/upload"
           element={

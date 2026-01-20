@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ useNavigate instead of next/router
+import { useNavigate } from "react-router-dom";
 import ProtectedRoute from "../auth/protected-route";
-import { FileText, Upload, X } from "lucide-react";
-import { uploadDocumentApi } from "../../api/documents"; // import document API
+import { Upload, FileText, X, MessageCircle } from "lucide-react";
+import { uploadDocumentApi } from "../../api/documents";
+import Home from "../home/home";
 
 export default function UploadPage() {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -68,7 +69,7 @@ export default function UploadPage() {
     }
   };
 
-const generateSummary = async () => {
+  const generateSummary = async () => {
     if (!uploadedFile) return;
 
     setIsUploading(true);
@@ -103,21 +104,7 @@ const generateSummary = async () => {
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-2">
-                <FileText className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">
-                  PDF Chat
-                </span>
-              </div>
-              <a href="/" className="text-gray-600 hover:text-gray-900">
-                Back to Home
-              </a>
-            </div>
-          </div>
-        </header>
+        <Home />
 
         {/* Upload Interface */}
         <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -201,6 +188,47 @@ const generateSummary = async () => {
             )}
           </div>
         </main>
+        {/* Features */}
+        <div className="max-w-7xl mx-auto mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-8 sm:mt-12">
+            <div className="text-center p-4 sm:p-6 rounded-lg bg-card border border-border">
+              <div className="rounded-full bg-accent/10 p-3 sm:p-4 w-fit mx-auto mb-3 sm:mb-4">
+                <MessageCircle className="h-6 w-6 sm:h-8 sm:w-8 text-accent text-green-400" />
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold text-card-foreground mb-2">
+                Smart Conversations
+              </h3>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                Ask questions about your document and get intelligent,
+                context-aware responses.
+              </p>
+            </div>
+            <div className="text-center p-4 sm:p-6 rounded-lg bg-card border border-border">
+              <div className="rounded-full bg-primary/10 p-3 sm:p-4 w-fit mx-auto mb-3 sm:mb-4">
+                <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-primary text-blue-600" />
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold text-card-foreground mb-2">
+                Document Analysis
+              </h3>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                Comprehensive analysis of your PDF content with key insights and
+                summaries.
+              </p>
+            </div>
+            <div className="text-center p-4 sm:p-6 rounded-lg bg-card border border-border sm:col-span-2 lg:col-span-1">
+              <div className="rounded-full bg-secondary/10 p-3 sm:p-4 w-fit mx-auto mb-3 sm:mb-4">
+                <Upload className="h-6 w-6 sm:h-8 sm:w-8 text-secondary text-violet-500" />
+              </div>
+              <h3 className="text-base sm:text-lg font-semibold text-card-foreground mb-2">
+                Easy Upload
+              </h3>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                Simply drag and drop your PDF or tap to upload. Supports all
+                standard PDF formats.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </ProtectedRoute>
   );
