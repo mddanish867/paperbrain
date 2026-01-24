@@ -1,25 +1,28 @@
 import { useState } from "react"
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react"
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "../../context/auth-context"
 
-export default function Register({  onRegister }) {
+export default function Register() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const navigate = useNavigate();
+  const { register, registerLoading } = useAuth()
+  const navigate = useNavigate()
 
   const onSwitchToLogin = () => {
-    navigate("/login");
+    navigate("/login")
   }
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError("")
+
     if (!name || !email || !password || !confirmPassword) {
       setError("Please fill in all fields")
       return
@@ -35,15 +38,18 @@ export default function Register({  onRegister }) {
       return
     }
 
-    setIsLoading(true)
-    setError("")
-
     try {
-      await onRegister(name, email, password)
-    } catch {
-      setError("Failed to create account. Please try again.")
-    } finally {
-      setIsLoading(false)
+      await register({
+        username: name,     // 🔑 backend expects `username`
+        email,
+        password,
+      })
+
+      // optional: redirect to verify/login
+      navigate("/login")
+    } catch (err) {
+      console.error("Register error:", err)
+      setError(err.message || "Failed to create account")
     }
   }
 
@@ -79,7 +85,7 @@ export default function Register({  onRegister }) {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  disabled={isLoading}
+                  disabled={registerLoading}
                   className="w-full pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                   placeholder="Enter your full name"
                 />
@@ -97,7 +103,7 @@ export default function Register({  onRegister }) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
+                  disabled={registerLoading}
                   className="w-full pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                   placeholder="Enter your email"
                 />
@@ -115,7 +121,7 @@ export default function Register({  onRegister }) {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
+                  disabled={registerLoading}
                   className="w-full pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                   placeholder="Create a password"
                 />
@@ -123,13 +129,9 @@ export default function Register({  onRegister }) {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
-                  disabled={isLoading}
+                  disabled={registerLoading}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-500" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-500" />
-                  )}
+                  {showPassword ? <EyeOff /> : <Eye />}
                 </button>
               </div>
             </div>
@@ -145,7 +147,7 @@ export default function Register({  onRegister }) {
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  disabled={isLoading}
+                  disabled={registerLoading}
                   className="w-full pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                   placeholder="Confirm your password"
                 />
@@ -153,31 +155,26 @@ export default function Register({  onRegister }) {
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
-                  disabled={isLoading}
+                  disabled={registerLoading}
                 >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-500" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-500" />
-                  )}
+                  {showConfirmPassword ? <EyeOff /> : <Eye />}
                 </button>
               </div>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={registerLoading}
               className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 px-4 py-3 text-sm font-medium text-white disabled:opacity-50"
             >
-              {isLoading ? (
+              {registerLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Creating...
                 </>
               ) : (
                 <>
-                  <span>Create Account</span>
+                  Create Account
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}

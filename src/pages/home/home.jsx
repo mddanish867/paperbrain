@@ -16,9 +16,9 @@ const Home = () => {
           {/* LEFT: Logo */}
           <div className="flex items-center space-x-2">
             <FileText className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">
+            <Link to="/" className="text-xl font-bold text-gray-900">
               PaperBrain
-            </span>
+            </Link>
           </div>
 
           {/* CENTER: Desktop Nav */}

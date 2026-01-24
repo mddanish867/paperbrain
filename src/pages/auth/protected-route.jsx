@@ -8,8 +8,7 @@ export default function ProtectedRoute({ children }) {
   const { user, isLoading, isInitialLoading } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("ProtectedRoute - user:", user, "isLoading:", isLoading); // Debug log
+  useEffect(() => {   
     
     // Only redirect if we're done loading and there's no user
     if (!isLoading && !isInitialLoading && !user) {

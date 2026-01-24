@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import ProtectedRoute from "../auth/protected-route";
-import { FileText, MessageCircle, Plus, Menu, X, Send } from "lucide-react";
+import {
+  FileText,
+  MessageCircle,
+  MessageSquareShare,
+  Menu,
+  X,
+  Send,
+} from "lucide-react";
 
 export default function ChatPage() {
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
@@ -128,11 +135,16 @@ export default function ChatPage() {
         {/* Sidebar */}
         <div
           className={`
-            fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform
-            transition-transform duration-300 ease-in-out
-            ${isLeftPanelOpen ? "translate-x-0" : "-translate-x-full"}
-            md:relative md:translate-x-0 md:w-80
-          `}
+    fixed md:relative inset-y-0 left-0 z-40
+    w-64 md:w-60
+    bg-white border-r border-gray-200
+    transform transition-all duration-300 ease-in-out
+    ${
+      isLeftPanelOpen
+        ? "translate-x-0"
+        : "-translate-x-full md:-translate-x-0 md:w-0"
+    }
+  `}
         >
           {/* Mobile Close Button */}
           <div className="p-4 border-b border-gray-200 flex items-center justify-between md:hidden">
@@ -151,20 +163,39 @@ export default function ChatPage() {
           </div>
 
           {/* Desktop Header */}
-          <div className="hidden md:flex items-center justify-between p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <FileText className="h-6 w-6 text-blue-600" />
-              <a href="/" className="text-gray-600 hover:text-gray-900">
-              <h2 className="text-lg font-semibold text-gray-900">
-                PaperBrain
-              </h2>{" "}
-            </a>
+          <div className="hidden md:flex items-start justify-between p-4 border-b border-gray-200">
+            {/* LEFT SECTION */}
+            <div className="flex flex-col space-y-1">
+              {/* App name row */}
+              <div className="flex items-center space-x-2">
+                <FileText className="h-6 w-6 text-blue-600" />
+                <a href="/" className="hover:text-gray-900">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    PaperBrain
+                  </h2>
+                </a>
+              </div>
+
+              {/* New Chat row (aligned under app name) */}
+              <button
+                onClick={createNewChat}
+                className="flex items-center space-x-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg px-2 py-1 w-fit"
+              >
+                <MessageSquareShare className="h-4 w-4" />
+                <span>New Chat</span>
+              </button>
             </div>
+
+            {/* RIGHT SECTION */}
             <button
-              onClick={createNewChat}
+              onClick={() => setIsLeftPanelOpen(!isLeftPanelOpen)}
               className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
             >
-              <Plus className="h-5 w-5" />
+              {isLeftPanelOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </button>
           </div>
 
@@ -213,19 +244,8 @@ export default function ChatPage() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="bg-white border-b border-gray-200 p-4">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setIsLeftPanelOpen(!isLeftPanelOpen)}
-                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
-              >
-                {isLeftPanelOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </button>
-            </div>
+          <div className="bg-white border-b border-gray-200 p-11">
+            <div className="flex items-center space-x-4"></div>
           </div>
 
           {/* Content Area */}
