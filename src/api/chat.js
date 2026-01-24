@@ -3,8 +3,8 @@ export const CHAT_API_URL = `${BASE_URL}/chat`;
 
 import { getAccessToken } from "./auth";
 
-// ✅ Send a chat message
-export const sendMessageApi = async ({ message, session_id }) => {
+//  Send a chat message
+export const sendMessageApi = async ({ message, session_id, document_id }) => {
   const token = getAccessToken();
 
   const res = await fetch(CHAT_API_URL, {
@@ -13,7 +13,11 @@ export const sendMessageApi = async ({ message, session_id }) => {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ message, session_id }),
+    body: JSON.stringify({
+      message,
+      session_id,
+      document_id,
+    }),
   });
 
   if (!res.ok) {
@@ -21,10 +25,11 @@ export const sendMessageApi = async ({ message, session_id }) => {
     throw new Error(error.detail || error.message || "Chat failed");
   }
 
-  return res.json(); // { reply: "...", session_id: "...", ... }
+  return res.json();
 };
 
-// ✅ Get conversation history
+
+//  Get conversation history
 export const getChatHistoryApi = async (session_id) => {
   const token = getAccessToken();
 
@@ -35,10 +40,10 @@ export const getChatHistoryApi = async (session_id) => {
   });
 
   if (!res.ok) throw new Error("Failed to fetch chat history");
-  return res.json(); // { messages: [...], session_id: "..." }
+  return res.json(); 
 };
 
-// ✅ Clear chat history
+//  Clear chat history
 export const clearChatHistoryApi = async (session_id) => {
   const token = getAccessToken();
 
@@ -50,10 +55,10 @@ export const clearChatHistoryApi = async (session_id) => {
   });
 
   if (!res.ok) throw new Error("Failed to clear chat history");
-  return res.json(); // { message: "Chat history cleared for session ..." }
+  return res.json(); 
 };
 
-// ✅ List chat sessions
+//  List chat sessions
 export const listSessionsApi = async () => {
   const token = getAccessToken();
 
@@ -64,10 +69,10 @@ export const listSessionsApi = async () => {
   });
 
   if (!res.ok) throw new Error("Failed to fetch sessions");
-  return res.json(); // { sessions: [...] }
+  return res.json(); 
 };
 
-// ✅ Get session info
+//  Get session info
 export const getSessionInfoApi = async (session_id) => {
   const token = getAccessToken();
 

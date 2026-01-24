@@ -16,6 +16,7 @@ import {
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { generateResearchReportApi, generateQuickAnalysisApi } from '../../api/research';
+import Home from '../home/home';
 
 const ResearchReportGenerator = () => {
   const [query, setQuery] = useState('');
@@ -133,9 +134,11 @@ const ResearchReportGenerator = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 bg-gray-50 min-h-screen">
+    <>
+    <Home/>
+    <div className="max-w-7xl mx-auto p-6  min-h-screen">      
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-200">
+      <div className="bg-white  p-4 mb-4 border border-gray-200">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full">
@@ -455,6 +458,8 @@ const ResearchReportGenerator = () => {
         </div>
       )}
     </div>
+    </>
+    
   );
 };
 

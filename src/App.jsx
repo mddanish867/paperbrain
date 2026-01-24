@@ -4,7 +4,7 @@ import ProtectedRoute from "./pages/auth/protected-route";
 import Landing from "./pages/landing";
 import Login from "./pages/auth/login";
 import UploadPage from "./pages/upload/upload";
-import ChatPage from "./pages/chat/chat";
+import ChatPage from "./pages/chat/ChatPage";
 import Summary from "./pages/summary/summary";
 import  ResearchReportGenerator from "./pages/research/research";
 import LoginPage from "./pages/auth/LoginPage";
