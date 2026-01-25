@@ -25,6 +25,59 @@ export const uploadDocumentApi = async (file) => {
   return res.json();
 };
 
+//  Delete Session (Document + Chats)
+export const deleteSessionApi = async (sessionId) => {
+  const token = getAccessToken();
+
+  const res = await fetch(
+    `${DOCS_API_URL}/sessions/${sessionId}`,
+    {
+      method: "DELETE",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(
+      error.detail || error.message || "Failed to delete session"
+    );
+  }
+
+  return res.json();
+};
+
+
+//  Rename Session
+export const renameSessionApi = async (sessionId, filename) => {
+  const token = getAccessToken();
+
+  const res = await fetch(
+    `${DOCS_API_URL}/sessions/${sessionId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ filename }),
+    }
+  );
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(
+      error.detail || error.message || "Failed to rename session"
+    );
+  }
+
+  return res.json();
+};
+
+
+
 // List Documents (OLD – keep as-is)
 export const listDocumentsApi = async () => {
   const token = getAccessToken();

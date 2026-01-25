@@ -1,21 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ProtectedRoute from "../auth/protected-route";
+import { Menu, X, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  FileText,
-  MessageCircle,
-  MessageSquareShare,
-  Menu,
-  X,
-  Send,
-  ThumbsUp,
-  ThumbsDown,
-  Copy,
-  MoreVertical
-} from "lucide-react";
+import { toast } from "react-hot-toast";
 
-import { sendMessageApi, getChatHistoryApi } from "../../api/chat";
-import { listDocumentSessionsApi } from "../../api/documents";
+import { getChatHistoryApi } from "../../api/chat";
+import { 
+  sendMessageStreamApi, 
+  regenerateAnswerApi, 
+  sendFeedbackApi, 
+  shareMessageApi 
+} from "../../api/chat";
+import {
+  listDocumentSessionsApi,
+  deleteSessionApi,
+  renameSessionApi
+} from "../../api/documents";
+
+import Sidebar from "../../components/chats/Sidebar";
+import PDFViewer from "../../components/chats/PDFViewer";
+import ChatSection from "../../components/chats/chatsection";
+import Modal from "../../components/chats/Modal";
 
 export default function ChatPage() {
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
@@ -26,10 +31,16 @@ export default function ChatPage() {
   const [currentPdfUrl, setCurrentPdfUrl] = useState(null);
   const [currentPdfName, setCurrentPdfName] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [activeSessionMenu, setActiveSessionMenu] = useState(null);
+  const [streamingMessageId, setStreamingMessageId] = useState(null);
+  
+  // Modal states
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedSessionForAction, setSelectedSessionForAction] = useState(null);
+  const [newSessionName, setNewSessionName] = useState("");
 
-  const [activeSessionMenu, setActiveSessionMenu] = useState(null); // 👈 NEW
-
-  /* ---------------- LOAD CHAT HISTORY ---------------- */
+  // Load chat history with feedback support
   const loadChatHistory = async (session_id) => {
     try {
       const history = await getChatHistoryApi(session_id);
@@ -41,26 +52,31 @@ export default function ChatPage() {
 
       const formatted = history.messages.flatMap((item, index) => [
         {
-          id: `q_${index}`,
+          id: item.question_id || `q_${index}`,
           text: item.question,
           isUser: true,
           timestamp: new Date(item.timestamp).toLocaleTimeString(),
         },
         {
-          id: `a_${index}`,
+          id: item.answer_id || `a_${index}`,
           text: item.answer,
           isUser: false,
           timestamp: new Date(item.timestamp).toLocaleTimeString(),
+          sources: item.sources || [],
+          feedback: item.feedback || { liked: false, disliked: false },
+          messageId: item.answer_id,
+          isRegeneration: item.is_regeneration || false,
         },
       ]);
 
       setMessages(formatted);
     } catch (err) {
-      console.error("Failed to load chat history", err);
+      console.error("Failed to load chat history:", err);
+      toast.error("Failed to load chat history");
     }
   };
 
-  /* ---------------- LOAD SIDEBAR SESSIONS ---------------- */
+  // Load sidebar sessions
   useEffect(() => {
     const loadSessions = async () => {
       try {
@@ -86,101 +102,445 @@ export default function ChatPage() {
           loadChatHistory(first.id);
         }
       } catch (err) {
-        console.error("Failed to load document sessions", err);
+        console.error("Failed to load sessions:", err);
+        toast.error("Failed to load sessions");
       }
     };
 
     loadSessions();
   }, []);
 
-  /* ---------------- SEND MESSAGE ---------------- */
+  // Streaming utility
+  const readStream = async (reader, messageId, onChunk, onSources) => {
+    const decoder = new TextDecoder();
+    let fullResponse = '';
+    let sources = [];
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n').filter(line => line.trim());
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.type === 'chunk' && data.content) {
+                fullResponse += data.content;
+                onChunk(fullResponse);
+              } else if (data.type === 'sources' && data.sources) {
+                sources = data.sources;
+                onSources(sources);
+              } else if (data.type === 'complete') {
+                // Final update with sources
+                return { fullResponse, sources, messageId: data.message_id };
+              }
+            } catch (e) {
+              console.error('Error parsing stream data:', e);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Stream reading error:', error);
+      throw error;
+    }
+    
+    return { fullResponse, sources, messageId };
+  };
+
+  // Send message with streaming
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedChat) return;
+    if (!newMessage.trim() || !selectedChat || isTyping) return;
 
     const activeSession = chatSessions.find(s => s.id === selectedChat);
     if (!activeSession) return;
 
     const userMessage = {
-      id: Date.now().toString(),
+      id: `user_${Date.now()}`,
       text: newMessage,
       isUser: true,
       timestamp: new Date().toLocaleTimeString(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const aiMessageId = `ai_${Date.now()}`;
+    const aiMessage = {
+      id: aiMessageId,
+      text: '',
+      isUser: false,
+      timestamp: new Date().toLocaleTimeString(),
+      sources: [],
+      isStreaming: true,
+      feedback: { liked: false, disliked: false },
+    };
+
+    setMessages(prev => [...prev, userMessage, aiMessage]);
     setNewMessage("");
+    setStreamingMessageId(aiMessageId);
     setIsTyping(true);
 
     try {
-      const res = await sendMessageApi({
-        message: userMessage.text,
+      const response = await sendMessageStreamApi({
+        message: newMessage,
         session_id: activeSession.id,
         document_id: activeSession.document_id,
       });
 
-      setMessages(prev => [
-        ...prev,
-        {
-          id: `${Date.now()}_ai`,
-          text: res.response,
-          isUser: false,
-          timestamp: new Date().toLocaleTimeString(),
+      const reader = response.body.getReader();
+      
+      const { fullResponse, sources } = await readStream(
+        reader,
+        aiMessageId,
+        (chunk) => {
+          setMessages(prev => prev.map(msg => 
+            msg.id === aiMessageId 
+              ? { ...msg, text: chunk }
+              : msg
+          ));
         },
-      ]);
-    } catch (err) {
-      setMessages(prev => [
-        ...prev,
-        {
-          id: "error",
-          text: err.message || "Chat failed",
-          isUser: false,
-          timestamp: new Date().toLocaleTimeString(),
-        },
-      ]);
+        (newSources) => {
+          setMessages(prev => prev.map(msg => 
+            msg.id === aiMessageId 
+              ? { ...msg, sources: newSources }
+              : msg
+          ));
+        }
+      );
+
+      // Final update
+      setMessages(prev => prev.map(msg => 
+        msg.id === aiMessageId 
+          ? { 
+              ...msg, 
+              text: fullResponse, 
+              sources,
+              isStreaming: false,
+              messageId: aiMessageId 
+            }
+          : msg
+      ));
+
+      reader.releaseLock();
+    } catch (error) {
+      console.error('Send message error:', error);
+      toast.error("Failed to send message");
+      // Remove the AI message if streaming failed
+      setMessages(prev => prev.filter(msg => msg.id !== aiMessageId));
     } finally {
       setIsTyping(false);
+      setStreamingMessageId(null);
     }
   };
 
-  /* ---------------- SESSION ACTIONS ---------------- */
+  // Regenerate answer
+  const handleRegenerate = async (messageId) => {
+    if (!selectedChat || isTyping) return;
 
-  const handleRenameSession = (sessionId) => {
-    const newName = prompt("Enter new session name");
-    if (!newName) return;
+    const message = messages.find(m => m.id === messageId);
+    if (!message) return;
 
-    setChatSessions(prev =>
-      prev.map(s =>
-        s.id === sessionId ? { ...s, name: newName } : s
-      )
-    );
+    const activeSession = chatSessions.find(s => s.id === selectedChat);
+    if (!activeSession) return;
+
+    // Create new message for regeneration
+    const newAiMessageId = `ai_regenerate_${Date.now()}`;
+    const regeneratedMessage = {
+      id: newAiMessageId,
+      text: '',
+      isUser: false,
+      timestamp: new Date().toLocaleTimeString(),
+      sources: [],
+      isStreaming: true,
+      isRegeneration: true,
+      feedback: { liked: false, disliked: false },
+      originalMessageId: messageId,
+    };
+
+    // Replace the old AI message with new one
+    setMessages(prev => {
+      const newMessages = [...prev];
+      const aiMessageIndex = newMessages.findIndex(m => m.id === messageId);
+      if (aiMessageIndex !== -1) {
+        newMessages[aiMessageIndex] = regeneratedMessage;
+      }
+      return newMessages;
+    });
+
+    setStreamingMessageId(newAiMessageId);
+    setIsTyping(true);
+
+    try {
+      const response = await regenerateAnswerApi({
+        message_id: parseInt(messageId.replace(/\D/g, '')), // Extract numeric ID
+        session_id: activeSession.id,
+        document_id: activeSession.document_id,
+      });
+
+      const reader = response.body.getReader();
+      
+      const { fullResponse, sources } = await readStream(
+        reader,
+        newAiMessageId,
+        (chunk) => {
+          setMessages(prev => prev.map(msg => 
+            msg.id === newAiMessageId 
+              ? { ...msg, text: chunk }
+              : msg
+          ));
+        },
+        (newSources) => {
+          setMessages(prev => prev.map(msg => 
+            msg.id === newAiMessageId 
+              ? { ...msg, sources: newSources }
+              : msg
+          ));
+        }
+      );
+
+      // Final update
+      setMessages(prev => prev.map(msg => 
+        msg.id === newAiMessageId 
+          ? { 
+              ...msg, 
+              text: fullResponse, 
+              sources,
+              isStreaming: false,
+              messageId: newAiMessageId 
+            }
+          : msg
+      ));
+
+      reader.releaseLock();
+    } catch (error) {
+      console.error('Regenerate error:', error);
+      toast.error("Failed to regenerate answer");
+      // Revert to original message
+      setMessages(prev => prev.map(msg => 
+        msg.id === newAiMessageId ? message : msg
+      ));
+    } finally {
+      setIsTyping(false);
+      setStreamingMessageId(null);
+    }
+  };
+
+  // Send feedback
+  const handleFeedback = async (messageId, feedbackType) => {
+    try {
+      const activeSession = chatSessions.find(s => s.id === selectedChat);
+      if (!activeSession) return;
+
+      // Get the actual message ID from backend
+      const message = messages.find(m => m.id === messageId);
+      if (!message) return;
+
+      // Optimistic update
+      setMessages(prev => prev.map(msg => {
+        if (msg.id === messageId) {
+          const newFeedback = { ...msg.feedback };
+          if (feedbackType === 'like') {
+            newFeedback.liked = !newFeedback.liked;
+            if (newFeedback.liked) newFeedback.disliked = false;
+          } else if (feedbackType === 'dislike') {
+            newFeedback.disliked = !newFeedback.disliked;
+            if (newFeedback.disliked) newFeedback.liked = false;
+          }
+          return { ...msg, feedback: newFeedback };
+        }
+        return msg;
+      }));
+
+      // Send to backend
+      await sendFeedbackApi({
+        message_id: parseInt(messageId.replace(/\D/g, '')), // Extract numeric ID
+        feedback_type: feedbackType,
+        session_id: activeSession.id,
+      });
+
+    } catch (error) {
+      console.error('Feedback error:', error);
+      toast.error("Failed to send feedback");
+    }
+  };
+
+  // Share message
+  const handleShare = async (messageId) => {
+    const message = messages.find(m => m.id === messageId);
+    if (!message) return;
+
+    try {
+      await shareMessageApi({
+        message_id: parseInt(messageId.replace(/\D/g, '')), // Extract numeric ID
+        message_text: message.text,
+      });
+      
+      toast.success("Message copied to clipboard!");
+    } catch (error) {
+      console.error('Share error:', error);
+      toast.error("Failed to share message");
+    }
+  };
+
+  // Modal handlers (same as before)
+  const openRenameModal = (sessionId) => {
+    const session = chatSessions.find(s => s.id === sessionId);
+    if (!session) return;
+    
+    setSelectedSessionForAction(session);
+    setNewSessionName(session.pdfName);
+    setIsRenameModalOpen(true);
     setActiveSessionMenu(null);
   };
 
-  const handleDeleteSession = (sessionId) => {
-    const confirmDelete = window.confirm("Delete this session?");
-    if (!confirmDelete) return;
+  const handleRenameConfirm = async () => {
+    if (!selectedSessionForAction || !newSessionName.trim()) {
+      setIsRenameModalOpen(false);
+      return;
+    }
 
+    const prevSessions = [...chatSessions];
+
+    // Optimistic update
+    setChatSessions(prev =>
+      prev.map(s =>
+        s.id === selectedSessionForAction.id 
+          ? { ...s, pdfName: newSessionName, name: `Chat with ${newSessionName}` } 
+          : s
+      )
+    );
+
+    try {
+      await renameSessionApi(selectedSessionForAction.id, newSessionName);
+      toast.success("Session renamed successfully");
+    } catch {
+      setChatSessions(prevSessions); // Rollback
+      toast.error("Failed to rename session");
+    } finally {
+      setIsRenameModalOpen(false);
+      setSelectedSessionForAction(null);
+      setNewSessionName("");
+    }
+  };
+
+  const openDeleteModal = (sessionId) => {
+    const session = chatSessions.find(s => s.id === sessionId);
+    if (!session) return;
+    
+    setSelectedSessionForAction(session);
+    setIsDeleteModalOpen(true);
+    setActiveSessionMenu(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedSessionForAction) {
+      setIsDeleteModalOpen(false);
+      return;
+    }
+
+    const sessionId = selectedSessionForAction.id;
+    const prevSessions = [...chatSessions];
+    const wasSelected = selectedChat === sessionId;
+
+    // Optimistic update
     setChatSessions(prev => prev.filter(s => s.id !== sessionId));
-
-    if (selectedChat === sessionId) {
+    
+    if (wasSelected) {
       setSelectedChat(null);
       setMessages([]);
       setCurrentPdfUrl(null);
       setCurrentPdfName("");
     }
 
-    setActiveSessionMenu(null);
+    try {
+      await deleteSessionApi(sessionId);
+      toast.success("Session deleted successfully");
+    } catch {
+      setChatSessions(prevSessions); // Rollback
+      toast.error("Failed to delete session");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setSelectedSessionForAction(null);
+    }
   };
 
   return (
     <ProtectedRoute>
       <div className="h-screen flex flex-col bg-gray-50">
+        {/* Modals */}
+        <Modal
+          isOpen={isRenameModalOpen}
+          onClose={() => setIsRenameModalOpen(false)}
+          title="Rename Session"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Enter a new name for this chat session
+            </p>
+            <input
+              type="text"
+              value={newSessionName}
+              onChange={(e) => setNewSessionName(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Session name"
+              autoFocus
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsRenameModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRenameConfirm}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                disabled={!newSessionName.trim()}
+              >
+                Rename
+              </button>
+            </div>
+          </div>
+        </Modal>
 
-        {/* ---------------- TOP BAR ---------------- */}
+        <Modal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          title="Delete Session"
+        >
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Are you sure you want to delete "
+              <span className="font-semibold">
+                {selectedSessionForAction?.name}
+              </span>
+              "? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Top Bar */}
         <div className="h-14 bg-white border-b flex items-center px-4 gap-3">
           {!isLeftPanelOpen ? (
-            <button
-              onClick={() => setIsLeftPanelOpen(true)}
+            <button 
+              onClick={() => setIsLeftPanelOpen(true)} 
               className="p-2 rounded hover:bg-gray-100"
             >
               <Menu className="h-5 w-5" />
@@ -193,8 +553,8 @@ export default function ChatPage() {
                   PaperBrain
                 </Link>
               </div>
-              <button
-                onClick={() => setIsLeftPanelOpen(false)}
+              <button 
+                onClick={() => setIsLeftPanelOpen(false)} 
                 className="p-2 rounded hover:bg-gray-100"
               >
                 <X className="h-5 w-5" />
@@ -203,144 +563,38 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* ---------------- MAIN ---------------- */}
+        {/* Main Content */}
         <div className="flex flex-1 overflow-hidden">
+          <Sidebar
+            isLeftPanelOpen={isLeftPanelOpen}
+            chatSessions={chatSessions}
+            selectedChat={selectedChat}
+            setSelectedChat={setSelectedChat}
+            setCurrentPdfUrl={setCurrentPdfUrl}
+            setCurrentPdfName={setCurrentPdfName}
+            loadChatHistory={loadChatHistory}
+            activeSessionMenu={activeSessionMenu}
+            setActiveSessionMenu={setActiveSessionMenu}
+            openRenameModal={openRenameModal}
+            openDeleteModal={openDeleteModal}
+          />
 
-          {/* SIDEBAR */}
-          {isLeftPanelOpen && (
-            <div className="w-[260px] bg-white border-r flex flex-col">
-              <button
-                className="m-2 flex items-center gap-2 text-sm text-gray-600 hover:bg-gray-100 rounded px-2 py-1"
-              >
-                <MessageSquareShare className="h-4 w-4" />
-                New Chat
-              </button>
+          <PDFViewer
+            currentPdfUrl={currentPdfUrl}
+            currentPdfName={currentPdfName}
+          />
 
-              <div className="flex-1 overflow-y-auto">
-                {chatSessions.map((chat) => (
-                  <div
-                    key={chat.id}
-                    className={`relative p-4 border-b cursor-pointer ${
-                      selectedChat === chat.id
-                        ? "bg-blue-50 border-l-4 border-l-blue-500"
-                        : "hover:bg-gray-50"
-                    }`}
-                    onClick={() => {
-                      setSelectedChat(chat.id);
-                      setCurrentPdfUrl(chat.file_url);
-                      setCurrentPdfName(chat.pdfName);
-                      loadChatHistory(chat.id);
-                    }}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-sm font-medium">{chat.name}</p>
-                        <p className="text-xs text-gray-500 truncate">
-                          {chat.pdfName}
-                        </p>
-                      </div>
-
-                      {/* 3 DOT MENU */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveSessionMenu(
-                            activeSessionMenu === chat.id ? null : chat.id
-                          );
-                        }}
-                        className="p-1 hover:bg-gray-200 rounded"
-                      >
-                        <MoreVertical className="w-4 h-4 text-gray-500" />
-                      </button>
-                    </div>
-
-                    {/* POPUP */}
-                    {activeSessionMenu === chat.id && (
-                      <div
-                        className="absolute right-2 top-10 bg-white border rounded shadow-md z-50 text-sm"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          className="block w-full text-left px-3 py-2 hover:bg-gray-100"
-                          onClick={() => handleRenameSession(chat.id)}
-                        >
-                          Rename
-                        </button>
-                        <button
-                          className="block w-full text-left px-3 py-2 text-red-600 hover:bg-gray-100"
-                          onClick={() => handleDeleteSession(chat.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* PDF VIEWER */}
-          <div className="flex-1 bg-gray-100 p-4">
-            <div className="h-full bg-white border rounded flex items-center justify-center">
-              {currentPdfUrl ? (
-                <iframe src={currentPdfUrl} title="PDF" className="w-full h-full" />
-              ) : (
-                <div className="text-gray-400">
-                  <FileText className="h-16 w-16 mx-auto mb-2" />
-                  No PDF loaded
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* CHAT */}
-          <div className="w-[380px] bg-white border-l flex flex-col">
-            <div className="p-4 border-b flex items-center gap-2">
-              <MessageCircle className="h-5 w-5 text-blue-600" />
-              <span className="font-medium">Chat</span>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((m) => (
-                <div key={m.id} className={`flex ${m.isUser ? "justify-end" : "justify-start"}`}>
-                  <div
-                    className={`max-w-md px-4 py-2 rounded-lg ${
-                      m.isUser ? "bg-blue-600 text-white" : "bg-gray-100 border"
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-line">{m.text}</p>
-                    <p className="text-xs mt-1 text-gray-500">{m.timestamp}</p>
-
-                    {!m.isUser && (
-                      <div className="flex items-center gap-3 mt-1 text-xs">
-                        <ThumbsUp className="w-3 h-3 text-gray-400" />
-                        <ThumbsDown className="w-3 h-3 text-gray-400" />
-                        <button onClick={() => navigator.clipboard.writeText(m.text)}>
-                          <Copy className="w-3 h-3 text-gray-400" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {isTyping && <div className="text-sm text-gray-500">AI is typing…</div>}
-            </div>
-
-            <div className="p-4 border-t flex gap-2">
-              <input
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                placeholder="Ask about the document…"
-                className="flex-1 border rounded-lg px-3 py-2"
-              />
-              <button onClick={handleSendMessage} className="bg-blue-600 text-white px-4 rounded-lg">
-                <Send className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+          <ChatSection
+            messages={messages}
+            isTyping={isTyping}
+            newMessage={newMessage}
+            setNewMessage={setNewMessage}
+            handleSendMessage={handleSendMessage}
+            handleRegenerate={handleRegenerate}
+            handleFeedback={handleFeedback}
+            handleShare={handleShare}
+            streamingMessageId={streamingMessageId}
+          />
         </div>
       </div>
     </ProtectedRoute>
