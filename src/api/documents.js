@@ -3,7 +3,7 @@ export const DOCS_API_URL = `${BASE_URL}/documents`;
 
 import { getAccessToken } from "./auth";
 
-// ✅ Upload PDF
+// Upload PDF
 export const uploadDocumentApi = async (file) => {
   const token = getAccessToken();
   const formData = new FormData();
@@ -25,7 +25,7 @@ export const uploadDocumentApi = async (file) => {
   return res.json();
 };
 
-// ✅ List Documents
+// List Documents (OLD – keep as-is)
 export const listDocumentsApi = async () => {
   const token = getAccessToken();
   const res = await fetch(DOCS_API_URL, {
@@ -37,7 +37,27 @@ export const listDocumentsApi = async () => {
   return res.json();
 };
 
-// ✅ Delete Document
+// 🔥 List User Document Sessions (NEW – sidebar use)
+export const listDocumentSessionsApi = async () => {
+  const token = getAccessToken();
+
+  const res = await fetch(`${DOCS_API_URL}/sessions`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(
+      error.detail || error.message || "Failed to fetch document sessions"
+    );
+  }
+
+  return res.json();
+};
+
+// Delete Document
 export const deleteDocumentApi = async (docId) => {
   const token = getAccessToken();
   const res = await fetch(`${DOCS_API_URL}/${docId}`, {
