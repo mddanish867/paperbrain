@@ -1,5 +1,5 @@
 import { MessageSquareShare, MoreVertical } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 export default function Sidebar({
   isLeftPanelOpen,
   chatSessions,
@@ -15,9 +15,19 @@ export default function Sidebar({
 }) {
   if (!isLeftPanelOpen) return null;
 
+const navigate = useNavigate();
+const removeFile = () => {
+    sessionStorage.removeItem("uploadedFile");
+    sessionStorage.removeItem("pdfUrl");    
+  };
+
+  const uploadNewFile = () => {
+    removeFile(); // explicit hard reset
+    navigate("/upload")
+  };
   return (
     <div className="w-[260px] bg-white border-r flex flex-col">
-      <button className="m-2 flex items-center gap-2 text-sm text-gray-600 hover:bg-gray-100 rounded px-2 py-1">
+      <button onClick={uploadNewFile} className="m-2 flex items-center gap-2 text-sm text-gray-600 hover:bg-gray-100 rounded px-2 py-1">
         <MessageSquareShare className="h-4 w-4" />
         New Chat
       </button>

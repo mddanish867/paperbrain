@@ -2,7 +2,7 @@ import { FileText } from "lucide-react";
 
 export default function PDFViewer({ currentPdfUrl, currentPdfName }) {
   return (
-    <div className="flex-1 bg-gray-100 p-4">
+    <div className="flex-1  p-4">
       <div className="h-full bg-white border rounded flex items-center justify-center">
         {currentPdfUrl ? (
           <iframe 

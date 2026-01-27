@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ProtectedRoute from "../auth/protected-route";
-import { Upload, FileText, X, MessageCircle, Loader2 } from "lucide-react";
+import { Upload, FileText, X, MessageCircle, Loader } from "lucide-react";
 import { uploadDocumentApi } from "../../api/documents";
 import Home from "../home/home";
-
+import DocumentUploadLoader from "../../components/loader/DocumentUploadLoader ";
 export default function UploadPage() {
   const navigate = useNavigate();
 
@@ -102,8 +102,8 @@ export default function UploadPage() {
         {isUploading && (
           <div className="fixed inset-0 bg-white/80 z-50 flex items-center justify-center">
             <div className="flex flex-col items-center">
-              <Loader2 className="h-20 w-20 animate-spin text-blue-600" />
-              
+              {/* <Loader className="h-20 w-20 animate-spin text-blue-600" /> */}
+              <DocumentUploadLoader/>
             </div>
           </div>
         )}

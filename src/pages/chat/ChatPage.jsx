@@ -469,7 +469,7 @@ export default function ChatPage() {
 
   return (
     <ProtectedRoute>
-      <div className="h-screen flex flex-col bg-gray-50">
+      <div className="h-screen flex flex-col ">
         {/* Modals */}
         <Modal
           isOpen={isRenameModalOpen}

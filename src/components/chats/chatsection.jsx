@@ -43,7 +43,7 @@ export default function ChatSection({
   };
 
   return (
-    <div className="w-[380px] bg-white border-l flex flex-col">
+    <div className="w-[450px] bg-white border-l flex flex-col">
       <div className="p-4 border-b flex items-center gap-2">
         <MessageCircle className="h-5 w-5 text-blue-600" />
         <span className="font-medium">Chat</span>
