@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { 
   loginApi, 
@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => getAccessToken());
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // ✅ Sync with /me on load
+  // Sync with /me on load
   useEffect(() => {
     const checkAuth = async () => {
       if (!token) {
@@ -59,7 +59,7 @@ export function AuthProvider({ children }) {
       };
 
       setUser(normalizedUser);
-      setToken(data.token.access_token); // ✅ Only access_token
+      setToken(data.token.access_token); // Only access_token
 
       localStorage.setItem("user", JSON.stringify(normalizedUser));
       localStorage.setItem("token", data.token.access_token);

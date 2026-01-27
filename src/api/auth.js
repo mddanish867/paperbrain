@@ -97,7 +97,7 @@ export const loginApi = async ({ username_or_email, password }) => {
 
   const data = await res.json();
 
-  // ✅ Correctly extract access/refresh tokens
+  // Correctly extract access/refresh tokens
   if (data.token) {
     saveTokens({
       access_token: data.token.access_token,

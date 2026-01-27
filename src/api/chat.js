@@ -53,6 +53,45 @@ export const sendMessageStreamApi = async ({ message, session_id, document_id })
   return res;
 };
 
+// Submit feedback
+export const sendFeedbackApi = async ({ message_id, feedback_type, session_id }) => {
+  const token = getAccessToken();
+
+  const res = await fetch(`${CHAT_API_URL}/feedback`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({
+      message_id,
+      feedback_type,
+      session_id,
+    }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.detail || error.message || "Feedback failed");
+  }
+
+  return res.json();
+};
+
+// Get conversation history
+export const getChatHistoryApi = async (session_id) => {
+  const token = getAccessToken();
+
+  const res = await fetch(`${CHAT_API_URL}/history/${session_id}`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch chat history");
+  return res.json(); 
+};
+
 // Regenerate answer with streaming
 export const regenerateAnswerApi = async ({ message_id, session_id, document_id }) => {
   const token = getAccessToken();
@@ -78,30 +117,7 @@ export const regenerateAnswerApi = async ({ message_id, session_id, document_id 
   return res;
 };
 
-// Submit feedback
-export const sendFeedbackApi = async ({ message_id, feedback_type, session_id }) => {
-  const token = getAccessToken();
 
-  const res = await fetch(`${CHAT_API_URL}/feedback`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({
-      message_id,
-      feedback_type,
-      session_id,
-    }),
-  });
-
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(error.detail || error.message || "Feedback failed");
-  }
-
-  return res.json();
-};
 
 // Share message
 export const shareMessageApi = async ({ message_id, message_text }) => {
@@ -134,63 +150,9 @@ export const shareMessageApi = async ({ message_id, message_text }) => {
   }
 };
 
-// Get conversation history
-export const getChatHistoryApi = async (session_id) => {
-  const token = getAccessToken();
 
-  const res = await fetch(`${CHAT_API_URL}/history/${session_id}`, {
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
 
-  if (!res.ok) throw new Error("Failed to fetch chat history");
-  return res.json(); 
-};
 
-// Clear chat history
-export const clearChatHistoryApi = async (session_id) => {
-  const token = getAccessToken();
 
-  const res = await fetch(`${CHAT_API_URL}/history/${session_id}`, {
-    method: "DELETE",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
 
-  if (!res.ok) throw new Error("Failed to clear chat history");
-  return res.json(); 
-};
 
-// List chat sessions
-export const listSessionsApi = async () => {
-  const token = getAccessToken();
-
-  const res = await fetch(`${CHAT_API_URL}/sessions`, {
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch sessions");
-  return res.json(); 
-};
-
-// Get session info
-export const getSessionInfoApi = async (session_id) => {
-  const token = getAccessToken();
-
-  const res = await fetch(`${CHAT_API_URL}/session/${session_id}/info`, {
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
-
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(error.detail || "Session not found");
-  }
-
-  return res.json();
-};

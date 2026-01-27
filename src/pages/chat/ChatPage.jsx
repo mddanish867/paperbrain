@@ -56,6 +56,7 @@ export default function ChatPage() {
           text: item.question,
           isUser: true,
           timestamp: new Date(item.timestamp).toLocaleTimeString(),
+          messageId: item.chat_id,
         },
         {
           id: item.answer_id || `a_${index}`,
@@ -64,11 +65,11 @@ export default function ChatPage() {
           timestamp: new Date(item.timestamp).toLocaleTimeString(),
           sources: item.sources || [],
           feedback: item.feedback || { liked: false, disliked: false },
-          messageId: item.answer_id,
+          messageId: item.chat_id,
           isRegeneration: item.is_regeneration || false,
         },
       ]);
-
+      
       setMessages(formatted);
     } catch (err) {
       console.error("Failed to load chat history:", err);
@@ -192,7 +193,7 @@ export default function ChatPage() {
 
       const reader = response.body.getReader();
       
-      const { fullResponse, sources } = await readStream(
+      const { fullResponse, sources, messageId  } = await readStream(
         reader,
         aiMessageId,
         (chunk) => {
@@ -219,7 +220,8 @@ export default function ChatPage() {
               text: fullResponse, 
               sources,
               isStreaming: false,
-              messageId: aiMessageId 
+              messageId: messageId || aiMessageId,
+              feedback: { liked: false, disliked: false }
             }
           : msg
       ));
@@ -332,12 +334,23 @@ export default function ChatPage() {
   const handleFeedback = async (messageId, feedbackType) => {
     try {
       const activeSession = chatSessions.find(s => s.id === selectedChat);
-      if (!activeSession) return;
-
+      if (!activeSession) {
+      toast.error("No active session found");
+      return;
+    }
       // Get the actual message ID from backend
       const message = messages.find(m => m.id === messageId);
-      if (!message) return;
-
+      if (!message) {
+      toast.error("NO chat found for this session");
+      return;
+    }
+      const backendMessageId = message.messageId;
+       if (!backendMessageId) {
+      console.error('No backend message ID found:', message);
+      toast.error("Cannot send feedback - message not saved yet");
+      return;
+      }
+      
       // Optimistic update
       setMessages(prev => prev.map(msg => {
         if (msg.id === messageId) {
@@ -356,7 +369,7 @@ export default function ChatPage() {
 
       // Send to backend
       await sendFeedbackApi({
-        message_id: parseInt(messageId.replace(/\D/g, '')), // Extract numeric ID
+        message_id: backendMessageId,
         feedback_type: feedbackType,
         session_id: activeSession.id,
       });
@@ -466,7 +479,7 @@ export default function ChatPage() {
       setSelectedSessionForAction(null);
     }
   };
-
+  
   return (
     <ProtectedRoute>
       <div className="h-screen flex flex-col ">
@@ -591,7 +604,7 @@ export default function ChatPage() {
             setNewMessage={setNewMessage}
             handleSendMessage={handleSendMessage}
             handleRegenerate={handleRegenerate}
-            handleFeedback={handleFeedback}
+            handleFeedback={handleFeedback}            
             handleShare={handleShare}
             streamingMessageId={streamingMessageId}
           />

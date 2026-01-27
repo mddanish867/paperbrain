@@ -76,21 +76,7 @@ export const renameSessionApi = async (sessionId, filename) => {
   return res.json();
 };
 
-
-
-// List Documents (OLD – keep as-is)
-export const listDocumentsApi = async () => {
-  const token = getAccessToken();
-  const res = await fetch(DOCS_API_URL, {
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
-  if (!res.ok) throw new Error("Failed to fetch documents");
-  return res.json();
-};
-
-// 🔥 List User Document Sessions (NEW – sidebar use)
+// List User Document Sessions (NEW – sidebar use)
 export const listDocumentSessionsApi = async () => {
   const token = getAccessToken();
 
@@ -110,15 +96,4 @@ export const listDocumentSessionsApi = async () => {
   return res.json();
 };
 
-// Delete Document
-export const deleteDocumentApi = async (docId) => {
-  const token = getAccessToken();
-  const res = await fetch(`${DOCS_API_URL}/${docId}`, {
-    method: "DELETE",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
-  if (!res.ok) throw new Error("Failed to delete document");
-  return res.json();
-};
+
