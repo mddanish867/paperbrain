@@ -12,13 +12,15 @@ const Home = () => {
     <header className="border-b">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center h-16">
-
           {/* LEFT: Logo */}
           <div className="flex items-center space-x-2">
-            <FileText className="h-8 w-8 text-blue-600" />
-            <Link to="/" className="text-xl font-bold text-gray-900">
-              PaperBrain
-            </Link>
+            <FileText className="h-10 w-10 text-blue-600" />
+            <div className="flex flex-col">
+              <Link to="/" className="text-xl font-bold text-gray-900">
+                PaperBrain
+              </Link>
+              <p className="text-sm text-gray-500">AI-Powered PDF Chat</p>
+            </div>
           </div>
 
           {/* CENTER: Desktop Nav */}
@@ -39,7 +41,6 @@ const Home = () => {
 
           {/* RIGHT: Auth + Hamburger */}
           <div className="flex items-center space-x-4 ml-auto">
-
             {/* Hamburger (Mobile & Tablet) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

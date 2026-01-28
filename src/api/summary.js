@@ -4,7 +4,7 @@ export const SUMMARY_API_URL = `${BASE_URL}/summary`;
 import { getAccessToken } from "./auth";
 
 // ============================
-// 1️⃣ Generate structured summary (JSON)
+// 1️ Generate structured summary (JSON)
 // ============================
 export const generateSummaryApi = async ({ doc_id, session_id }) => {
   const token = getAccessToken();
@@ -23,12 +23,12 @@ export const generateSummaryApi = async ({ doc_id, session_id }) => {
     throw new Error(error.detail || "Failed to generate summary");
   }
 
-  // 🔥 अब backend structured JSON return करता है
+  //  अब backend structured JSON return करता है
   return res.json();
 };
 
 // ============================
-// 2️⃣ Download DOCX
+// 2️ Download DOCX
 // ============================
 export const downloadSummaryDocxApi = async (doc_id) => {
   const token = getAccessToken();
@@ -51,7 +51,7 @@ export const downloadSummaryDocxApi = async (doc_id) => {
 };
 
 // ============================
-// 3️⃣ Download PDF
+// 3️ Download PDF
 // ============================
 export const downloadSummaryPdfApi = async (doc_id) => {
   const token = getAccessToken();

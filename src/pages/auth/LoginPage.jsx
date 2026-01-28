@@ -4,11 +4,12 @@ import {
   EyeOff,
   Mail,
   Lock,
-  ArrowRight, 
+  ArrowRight,
   Loader2,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "../../context/auth-context";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -21,10 +22,10 @@ export default function LoginPage() {
 
   const onSwitchToRegister = () => {
     navigate("/register");
-  }
+  };
   const onSwitchToForgotPassword = () => {
     navigate("/forgot-password");
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,7 +43,7 @@ export default function LoginPage() {
       });
 
       // ensure auth state settles
-      setTimeout(() => navigate("/upload"), 100);
+      setTimeout(() => navigate("/"), 100);
     } catch (err) {
       console.error("Login error:", err);
       setError(err.message || "Invalid email or password");
@@ -51,22 +52,24 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-       
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {/* LOGO */}
+          <div className="flex items-center space-x-2 p-6 justify-center">
+            <FileText className="h-10 w-10 text-blue-600" />
+            <div className="flex flex-col">
+              <Link to="/" className="text-xl font-bold text-gray-900">
+                PaperBrain
+              </Link>
+              <p className="text-sm text-gray-500">AI-Powered PDF Chat</p>
+            </div>
+          </div>
 
-          
-          
-       
-        <div className="flex flex-col mb-8">
-          <h2 className="text-2xl font-bold text-foreground mb-2">
-            Welcome Back
-          </h2>
-          <p className="text-muted-foreground">
-            Sign in to continue chatting with your PDFs
-          </p>
-        </div>
-      
+          <div className="flex flex-col mb-8">
+            <p className="text-muted-foreground">
+              Sign in to continue chatting with your PDFs
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
@@ -115,7 +118,7 @@ export default function LoginPage() {
                   disabled={loginLoading}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-500"  />
+                    <EyeOff className="h-5 w-5 text-gray-500" />
                   ) : (
                     <Eye className="h-5 w-5 text-gray-500" />
                   )}

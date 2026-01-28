@@ -111,7 +111,7 @@ export default function UploadPage() {
         <main className="container mx-auto px-4 py-12">
           <div className="max-w-2xl mx-auto">
 
-            {/* ✅ Upload new file link (TOP RIGHT) */}
+            {/*  Upload new file link (TOP RIGHT) */}
             {hasFile && (
               <div className="flex justify-end mb-4">
                 <button

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../../context/auth-context";
 import ProtectedRoute from "../auth/protected-route";
 import { Menu, X, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -23,6 +24,8 @@ import ChatSection from "../../components/chats/chatsection";
 import Modal from "../../components/chats/Modal";
 
 export default function ChatPage() {
+  const { user, logout } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
   const [chatSessions, setChatSessions] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -551,30 +554,72 @@ export default function ChatPage() {
 
         {/* Top Bar */}
         <div className="h-14 bg-white border-b flex items-center px-4 gap-3">
-          {!isLeftPanelOpen ? (
-            <button 
-              onClick={() => setIsLeftPanelOpen(true)} 
-              className="p-2 rounded hover:bg-gray-100"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-          ) : (
-            <div className="w-[245px] border-r flex justify-between items-center">
-              <div className="flex items-center space-x-2">
-                <FileText className="h-8 w-8 text-blue-600" />
-                <Link to="/" className="text-xl font-bold text-gray-900">
-                  PaperBrain
-                </Link>
-              </div>
-              <button 
-                onClick={() => setIsLeftPanelOpen(false)} 
-                className="p-2 rounded hover:bg-gray-100"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          )}
+  {!isLeftPanelOpen ? (
+    <button 
+      onClick={() => setIsLeftPanelOpen(true)} 
+      className="p-2 rounded hover:bg-gray-100"
+    >
+      <Menu className="h-5 w-5" />
+    </button>
+  ) : (
+    <div className="w-[245px] border-r flex justify-between items-center pr-4">
+      <div className="flex items-center space-x-2">
+        <FileText className="h-8 w-8 text-blue-600" />
+        <Link to="/" className="text-xl font-bold text-gray-900">
+          PaperBrain
+        </Link>
+      </div>
+      <button 
+        onClick={() => setIsLeftPanelOpen(false)} 
+        className="p-2 rounded hover:bg-gray-100"
+      >
+        <X className="h-5 w-5" />
+      </button>
+    </div>
+  )}
+  
+  {/* Spacer to push auth to the right */}
+  <div className="flex-1"></div>
+  
+  {/* Auth - Moved to right side */}
+  {user ? (
+    <div className="relative p-4">
+      <button
+        onClick={() => setShowUserMenu(!showUserMenu)}
+        className="flex items-center space-x-2"
+      >
+        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+          {user?.username?.charAt(0).toUpperCase() || "U"}
         </div>
+        
+      </button>
+
+      {showUserMenu && (
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border z-20">
+          <Link
+            to="/upload"
+            className="block px-4 py-2 text-sm hover:bg-gray-100"
+          >
+            Upload PDF
+          </Link>
+          <button
+            onClick={logout}
+            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  ) : (
+    <Link
+      to="/login"
+      className="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 rounded-lg"
+    >
+      Login
+    </Link>
+  )}
+</div>
 
         {/* Main Content */}
         <div className="flex flex-1 overflow-hidden">
