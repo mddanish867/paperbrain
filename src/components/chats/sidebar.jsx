@@ -22,7 +22,7 @@ const removeFile = () => {
   };
 
   const uploadNewFile = () => {
-    removeFile(); // explicit hard reset
+    removeFile(); 
     navigate("/upload")
   };
   return (

@@ -17,7 +17,6 @@ import {
   deleteSessionApi,
   renameSessionApi
 } from "../../api/documents";
-
 import Sidebar from "../../components/chats/Sidebar";
 import PDFViewer from "../../components/chats/PDFViewer";
 import ChatSection from "../../components/chats/chatsection";
