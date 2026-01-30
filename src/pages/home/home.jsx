@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../context/auth-context";
 import { Link } from "react-router-dom";
-import { FileText, Menu, X } from "lucide-react";
+import { FileText, Link2, Menu, X } from "lucide-react";
 
 const Home = () => {
   const { user, logout } = useAuth();
@@ -13,15 +13,15 @@ const Home = () => {
       <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center h-16">
           {/* LEFT: Logo */}
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <FileText className="h-10 w-10 text-blue-600" />
             <div className="flex flex-col">
-              <Link to="/" className="text-xl font-bold text-gray-900">
+              <span  className="text-xl font-bold text-gray-900">
                 PaperBrain
-              </Link>
+              </span>
               <p className="text-sm text-gray-500">AI-Powered PDF Chat</p>
             </div>
-          </div>
+          </Link>
 
           {/* CENTER: Desktop Nav */}
           <nav className="hidden md:flex flex-1 justify-center space-x-6">
@@ -84,7 +84,7 @@ const Home = () => {
             ) : (
               <Link
                 to="/login"
-                className="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 rounded-lg"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 hover:bg-blue-700 rounded-lg"
               >
                 Login
               </Link>

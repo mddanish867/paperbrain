@@ -43,23 +43,21 @@ const Hero = () => {
             </div>
 
             <h1 className="mb-6 text-5xl font-extrabold tracking-tight text-gray-900 sm:text-6xl">
-              Chat with your <br />
+              The Intelligent Platform for <br />
               <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                PDF Documents
+                Modern Developers
               </span>
             </h1>
 
             <p className="mb-8 text-lg leading-relaxed text-gray-600">
-              Transform static documents into intelligent conversations. Upload
-              any PDF and instantly extract insights, summaries, and answers
-              using our advanced matrix processing engine.
+              Empowering developers with AI-powered tools for documentation, code review, database interaction, chat with documents and real-time technology research.
             </p>
 
             <div className="flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
               {user ? (
                 <a
                   onClick={HandleNewUpload}
-                  className="group inline-flex items-center justify-center rounded-xl bg-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700 hover:scale-[1.02]"
+                  className="group inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700 hover:scale-[1.02]"
                 >
                   <UploadCloud className="mr-2 h-5 w-5" />
                   Upload PDF
@@ -74,7 +72,7 @@ const Hero = () => {
                 </a>
               )}
 
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-900 border border-gray-300 px-8 py-5 rounded-xl">
                 <span className="flex h-2 w-2 rounded-full bg-green-500"></span>
                 Free Tier Available
               </div>

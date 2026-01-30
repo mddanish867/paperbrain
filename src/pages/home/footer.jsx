@@ -2,19 +2,19 @@ import { FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 const footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-12">
+    <footer className=" bg-white text-gray-900 py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
-            <div className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2">
               <FileText className="h-10 w-10 text-blue-600" />
               <div className="flex flex-col">
-                <Link to="/" className="text-xl font-bold text-white">
+                <span  className="text-xl font-bold text-gray-900">
                   PaperBrain
-                </Link>
+                </span>
                 <p className="text-sm text-gray-500">AI-Powered PDF Chat</p>
               </div>
-            </div>
+            </Link>
           </div>
 
           <div>
