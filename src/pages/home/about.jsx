@@ -8,7 +8,7 @@ import {
   GitBranch,
  
 } from 'lucide-react';
-import Home from './home';
+
 
 const AboutPage = () => {
   const features = [
@@ -64,7 +64,7 @@ const AboutPage = () => {
 
   return (
       <div className="min-h-screen bg-white border border-b-0">     
-      <Home />
+     
 
       {/* Stats Section */}
       <section className="py-12 md:py-16">

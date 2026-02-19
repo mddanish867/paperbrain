@@ -7,35 +7,35 @@ const Testimonials = () => {
       id: 1,
       name: "Sarah Johnson",
       role: "Marketing Director, TechCorp",
-      avatar: "/vite.svg",
+      avatar: "/client1.png",
       content: "AutoDocuGen has transformed how we manage our documentation. We've seen a 40% increase in productivity since we started using it."
     },
     {
       id: 2,
       name: "Michael Chen",
       role: "Social Media Manager, Startup Inc",
-      avatar: "/vite.svg",
+      avatar: "/client2.png",
       content: "The automated documentation features give us insights we never had before. It's like having a documentation expert on the team."
     },
     {
       id: 3,
       name: "Emily Rodriguez",
       role: "Founder, Design Studio",
-      avatar: "/vite.svg",
+      avatar: "/client3.png",
       content: "As a small business owner, AutoDocuGen has saved me countless hours. I can now generate all my documents in just minutes."
     },
     {
       id: 4,
       name: "David Wilson",
       role: "CTO, FinTech Solutions",
-      avatar: "/vite.svg",
+      avatar: "/client4.png",
       content: "The accuracy and speed of AutoDocuGen's document generation is remarkable. It's become an essential tool for our compliance department."
     },
     {
       id: 5,
       name: "Lisa Thompson",
       role: "Operations Manager, HealthPlus",
-      avatar: "/vite.svg",
+      avatar: "/client5.jpg",
       content: "We've reduced document creation time by 70% with AutoDocuGen. The templates are comprehensive and easy to customize."
     },
     {

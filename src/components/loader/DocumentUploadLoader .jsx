@@ -114,7 +114,7 @@ const DocumentUploadLoader = () => {
                 <span className="text-xl font-bold text-gray-900">
                   PaperBrain
                 </span>
-                <p className="text-sm text-gray-500">AI-Powered PDF Chat</p>
+                <p className="text-sm text-gray-500">Intelligent Platform</p>
               </div>
             </div>
           </div>

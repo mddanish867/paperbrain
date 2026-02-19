@@ -7,44 +7,59 @@ const Client = () => {
                 <div className="container px-4 md:px-6">
                     <div className="flex flex-col items-center justify-center space-y-4 text-center">
                         <div className="space-y-2">
-                            <h2 className="text-xl font-medium text-gray-500">Trusted by companies worldwide</h2>
+                            <h2 className="text-xl font-medium text-gray-500 mb-20">Trusted by companies worldwide</h2>
                         </div>
-                        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:gap-16 mt-10">
+                        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 lg:gap-16 ">
                             <img
-                                src="/vite.svg"
+                                src="/client1.png"
                                 width={120}
                                 height={40}
                                 alt="Company logo"
                                 className="h-16 w-auto"
                             />
                             <img
-                                src="/vite.svg"
+                                src="/client2.png"
                                 width={120}
                                 height={40}
                                 alt="Company logo"
                                 className="h-16 w-auto"
                             />
                             <img
-                                src="/vite.svg"
+                                src="/client3.png"
                                 width={120}
                                 height={40}
                                 alt="Company logo"
                                 className="h-16 w-auto "
                             />
                             <img
-                                src="/vite.svg"
+                                src="/client4.png"
                                 width={120}
                                 height={40}
                                 alt="Company logo"
                                 className="h-16 w-auto"
                             />
                             <img
-                                src="/vite.svg"
+                                src="/client5.jpg"
                                 width={120}
                                 height={40}
                                 alt="Company logo"
                                 className="h-16 w-auto"
                             />
+                            <img
+                                src="/client1.png"
+                                width={120}
+                                height={40}
+                                alt="Company logo"
+                                className="h-16 w-auto"
+                            />
+                            <img
+                                src="/client2.png"
+                                width={120}
+                                height={40}
+                                alt="Company logo"
+                                className="h-16 w-auto"
+                            />
+                          
                         </div>
                     </div>
                 </div>

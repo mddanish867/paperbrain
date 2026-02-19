@@ -69,7 +69,7 @@ export default function LoginPage() {
                 <span  className="text-2xl font-bold text-gray-900">
                   PaperBrain
                 </span>
-                <p className="text-sm text-gray-500">AI-Powered PDF Chat</p>
+                <p className="text-sm text-gray-500">Intelligent Platform</p>
               </div>
             </Link>
             <p className="text-gray-600">
