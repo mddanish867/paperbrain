@@ -57,7 +57,7 @@ const Hero = () => {
               {user ? (
                 <a
                   onClick={HandleNewUpload}
-                  className="group inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-700 hover:scale-[1.02]"
+                  className="group inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-4 text-lg font-semibold text-white shadow-lg cursor-pointer shadow-blue-500/30 transition-all hover:bg-blue-700 hover:scale-[1.02]"
                 >
                   <UploadCloud className="mr-2 h-5 w-5" />
                   Upload PDF
@@ -72,7 +72,7 @@ const Hero = () => {
                 </a>
               )}
 
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-900 border border-gray-300 px-8 py-5 rounded-xl">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-900 border cursor-pointer border-gray-300 px-8 py-5 rounded-xl">
                 <span className="flex h-2 w-2 rounded-full bg-green-500"></span>
                 Free Tier Available
               </div>
