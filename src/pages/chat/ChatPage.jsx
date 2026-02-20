@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../context/auth-context";
 import ProtectedRoute from "../auth/protected-route";
 import { Menu, X, FileText } from "lucide-react";
@@ -17,7 +17,7 @@ import {
   deleteSessionApi,
   renameSessionApi
 } from "../../api/documents";
-import Sidebar from "../../components/chats/Sidebar.jsx";
+import Sidebar from "../../components/chats/Sidebar";
 import PDFViewer from "../../components/chats/PDFViewer";
 import ChatSection from "../../components/chats/chatsection";
 import Modal from "../../components/chats/Modal";
